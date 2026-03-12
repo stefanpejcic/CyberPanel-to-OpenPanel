@@ -556,7 +556,9 @@ restore_files() {
     #rm -rf "$real_backup_files_path/public_html/.trash"
 	WWW_DIR="/home/$cyberpanel_username/docker-data/volumes/${cyberpanel_username}_html_data/_data/"
 	mkdir -p "$WWW_DIR"	
-    mv "${real_backup_files_path}public_html" "$WWW_DIR"
+	shopt -s dotglob
+	mv "${real_backup_files_path}public_html/"* "$WWW_DIR"
+	shopt -u dotglob
 }
 
 # ======================================================================
