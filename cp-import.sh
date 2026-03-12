@@ -461,7 +461,9 @@ restore_mysql() {
 
 			    sql_file="${real_backup_files_path}/${db_name}.sql"
 			    if [[ -f "$sql_file" ]]; then
-					apply_sandbox_workaround "$db_name.sql"
+					if [ "$mysql_type" = "mysql" ]; then
+						apply_sandbox_workaround "$db_name.sql"
+					fi
 
 			        log "Importing tables for database: $db_name"
                 	docker --context="$cyberpanel_username" cp "${real_backup_files_path}/$db_name.sql" "$mysql_type:/tmp/${db_name}.sql" >/dev/null 2>&1
@@ -568,7 +570,7 @@ fix_perms(){
     log "Changing permissions for all files and folders in user home directory /home/$cyberpanel_username/"
 
     dry_run "Would change permissions with command: find /home/$cyberpanel_username -print0 | xargs -0 chown $verbose $cyberpanel_username:$cyberpanel_username" && return
-    
+
     if ! timeout 600 find /home/$cyberpanel_username -print0 | xargs -0 chown $verbose $cyberpanel_username:$cyberpanel_username > /dev/null 2>&1; then
         if [ $? -eq 124 ]; then
             log "ERROR: Timeout reached while changing permissions (10 minutes)."
