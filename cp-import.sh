@@ -237,9 +237,9 @@ collect_stats() {
 }
 
 # ======================================================================
-# PARSE CPANEL BACKUP METADATA FOR ACCOUNT AND SERVICE INFORMATION
+# PARSE CYBERPANEL BACKUP METADATA FOR ACCOUNT AND SERVICE INFORMATION
 parse_metadata() {
-    log "Starting to parse cPanel metadata from meta.xml..."
+    log "Starting to parse CyberPanel metadata from meta.xml..."
 
     META_FILE="${real_backup_files_path}/meta.xml"
 
@@ -331,9 +331,9 @@ create_new_user() {
             mysql_query="UPDATE users SET password='$safe_hashed_password' WHERE username='$safe_username';"
             mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "$mysql_query"
             if [ $? -eq 0 ]; then
-                echo "Imported SHA-512 crypt password hash from cpanel (will be automatically converted to pbkdf2:sha256 on first user login)"
+                echo "Imported SHA-512 crypt password hash from CyberPanel (will be automatically converted to pbkdf2:sha256 on first user login)"
             else
-                echo "Failed to import SHA-512 crypt password hash from cpanel"
+                echo "Failed to import SHA-512 crypt password hash from CyberPanel"
             fi
         fi       
     else
@@ -353,7 +353,7 @@ restore_php_version() {
     if [ "$php_version" == "inherit" ]; then
         log "PHP version is set to inherit. No changes will be made."
     else
-        # cPanel custom version
+        # custom version
         log "Setting PHP $php_version as the default version for all new domains."
         output=$(opencli php-default "$cyberpanel_username" --update "$php_version" 2>&1)
         while IFS= read -r line; do
@@ -700,7 +700,7 @@ run_custom_post_hook() {
 
 create_tmp_dir_and_path() {
     backup_filename="${backup_filename%.*}"
-    backup_dir=$(mktemp -d /tmp/cpanel_import_XXXXXX)
+    backup_dir=$(mktemp -d /tmp/cyberpanel_import_XXXXXX)
     log "Created temporary directory: $backup_dir"
     real_backup_files_path="${backup_dir}/${backup_filename%.*}"
 }
@@ -718,7 +718,7 @@ success_message() {
 
     log "SUCCESS: Import for user $cyberpanel_username completed successfully."
 
-    nohup opencli sentinel --action=user_create --title="User account '$cyberpanel_username' imported from cPanel backup" --message="User account '$cyberpanel_username' has been successfully imported from backup file '$backup_filename'" >/dev/null 2>&1 &
+    nohup opencli sentinel --action=user_create --title="User account '$cyberpanel_username' imported from CyberPanel backup" --message="User account '$cyberpanel_username' has been successfully imported from backup file '$backup_filename'" >/dev/null 2>&1 &
 	disown
 }
 
@@ -729,7 +729,7 @@ log_paths_are() {
 
 start_message() {
     echo -e "
------------------- STARTING CPANEL ACCOUNT IMPORT ------------------
+------------------ STARTING CYBERPANEL ACCOUNT IMPORT ------------------
 --------------------------------------------------------------------
 
 Currently supported features:
@@ -751,7 +751,7 @@ Currently supported features:
 
 --------------------------------------------------------------------
   if you experience any errors with this script, please report to
-    https://github.com/stefanpejcic/cPanel-to-OpenPanel/issues
+    https://github.com/stefanpejcic/CyberPanel-to-OpenPanel/issues
 --------------------------------------------------------------------
 "
 }
@@ -763,14 +763,6 @@ ftp_accounts_import() {
 
     if [ -f "$ftp_conf" ]; then
         log "WARNING: Importing PureFTPD accounts is not yet supported"
-        # this is cpanel's format:
-        : '
-        #cat proftpdpasswd
-        pejcic:$6$cv9wnxSLeD1VEk.U$dm84PcqygxOWqT/uyMjrICKUPFeAQwOimJ8frihDCxjRfa1BKf6bnHIhWrbfmLrLn2YBSMnNatW09ZZMAS7GT/:1030:1034:pejcic:/home/pejcic:/bin/bash
-        neko@pcx3.com:$6$7GZJXVYlO53hV.M7$750UVg6zKmX.Uj8cmWUxkRnNXxjuZfcm6BxnJceiFD5Zl80sB7jZL0UeHIpw2a3aQRWh.BMH9WuCPdqwj8zxG.:1030:1034:pejcic:/home/pejcic/folder:/bin/ftpsh
-        whmcsmybekap@openpanel.co:$6$rDNAW7GZEAJ6zHJm$wYqg.H6USldSPCNz4jbgEi55tJ8hgeDzQCAmhSHfAPyzkJeP1u9E.LaLflQ.7kUbuRtBED7I70.QoCNRlxzEy0:1030:1034:pejcic:/home/pejcic/WHMC_MY_OPENPANEL_DB_BEKAP:/bin/ftpsh
-        pejcic_logs:$6$cv9wnxSLeD1VEk.U$dm84PcqygxOWqT/uyMjrICKUPFeAQwOimJ8frihDCxjRfa1BKf6bnHIhWrbfmLrLn2YBSMnNatW09ZZMAS7GT/:1030:1034:pejcic:/etc/apache2/logs/domlogs/pejcic:/bin/ftpsh
-        '
     fi
 }
 
@@ -791,7 +783,7 @@ import_email_accounts_and_data() {
 # ======================================================================
 
 write_import_activity() {
-    echo "$(date '+%Y-%m-%d %H:%M:%S')  $new_ip  Administrator ROOT user imported cpanel backup file" > /etc/openpanel/openpanel/core/users/$cyberpanel_username/activity.log
+    echo "$(date '+%Y-%m-%d %H:%M:%S')  $new_ip  Administrator ROOT user imported CyberPanel backup file" > /etc/openpanel/openpanel/core/users/$cyberpanel_username/activity.log
 }
 
 
