@@ -730,7 +730,7 @@ log_paths_are() {
 
 start_message() {
     echo -e "
------------------- STARTING CYBERPANEL ACCOUNT IMPORT ------------------
+---------------- STARTING CYBERPANEL ACCOUNT IMPORT ----------------
 --------------------------------------------------------------------
 
 Currently supported features:
