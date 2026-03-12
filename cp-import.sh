@@ -262,6 +262,7 @@ parse_metadata() {
         main_domain=$(get_xml_value "masterDomain")
         cyberpanel_email=$(get_xml_value "email")
 		php_version=$(get_xml_value "phpSelection")
+		hashed_password=$(get_xml_value "userPassword")
 		php_version="${php_version#PHP }"
 		db_count=$(grep -o "<dbName>" "$META_FILE" | wc -l)
 		email_count=$(grep -o "<emailAccount>" "$META_FILE" | wc -l)
@@ -321,19 +322,17 @@ create_new_user() {
     done <<< "$create_user_command"
 
     if echo "$create_user_command" | grep -q "Successfully added user"; then
-        shadow_file="$real_backup_files_path/shadow"
         if [ -f "$shadow_file" ]; then
             . /usr/local/opencli/db.sh
             
-            hashed_password=$(cat "$shadow_file")
             safe_hashed_password=$(printf "%s" "$hashed_password" | sed "s/'/''/g")
             safe_username=$(printf "%s" "$username" | sed "s/'/''/g")
             mysql_query="UPDATE users SET password='$safe_hashed_password' WHERE username='$safe_username';"
             mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "$mysql_query"
             if [ $? -eq 0 ]; then
-                echo "Imported SHA-512 crypt password hash from CyberPanel (will be automatically converted to pbkdf2:sha256 on first user login)"
+                echo "Imported SHA-256 crypt password hash from CyberPanel (will be automatically converted to pbkdf2:sha256 on first user login)"
             else
-                echo "Failed to import SHA-512 crypt password hash from CyberPanel"
+                echo "Failed to import SHA-256 crypt password hash from CyberPanel"
             fi
         fi       
     else
