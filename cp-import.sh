@@ -822,7 +822,7 @@ main() {
     restore_mysql                                                              # mysql databases, users and grants
     restore_ssl "$cyberpanel_username"                                         # ssl certs
     restore_wordpress                                                          # import wp sites to sitemanager
-    opencli user-quota $cyberpanel_username                                    # restore quota
+    opencli user-quota --update $cyberpanel_username                           # restore quota
 
     # STEP 4. IMPORT ENTERPRISE FEATURES
     import_email_accounts_and_data                                             # import emails, filters, forwarders..
