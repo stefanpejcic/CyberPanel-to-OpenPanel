@@ -551,18 +551,8 @@ restore_files() {
 fix_perms(){
     local verbose="" #-v
     log "Changing permissions for all files and folders in user home directory /home/$cyberpanel_username/"
-
     dry_run "Would change permissions with command: find /home/$cyberpanel_username -print0 | xargs -0 chown $verbose $cyberpanel_username:$cyberpanel_username" && return
-
-    if ! timeout 600 find /home/$cyberpanel_username -print0 | xargs -0 chown $verbose $cyberpanel_username:$cyberpanel_username > /dev/null 2>&1; then
-        if [ $? -eq 124 ]; then
-            log "ERROR: Timeout reached while changing permissions (10 minutes)."
-        else
-            log "ERROR: Failed to change permissions."
-        fi
-            log "       Make sure to change permissions manually from terminal with: find /home/$cyberpanel_username -print0 | xargs -0 chown -v $cyberpanel_username:$cyberpanel_username"
-    fi
-    
+	chown -R $cyberpanel_username:$cyberpanel_username /home/$cyberpanel_username    
 }
 
 # ======================================================================
@@ -797,8 +787,9 @@ main() {
     setquota -u $cyberpanel_username 0 0 0 0 /                                     # set unlimited quota while we do import!
     #create_home_mountpoint                                                     # mount /var/www/html/ to /home/USERNAME 
     get_mysql_type_cnf_and_socket                                              # mysql or mariadb, path to socket and my.cnf logins
-    fix_perms                                                                  # fix permissions for all files
-    restore_php_version "$php_version"                                         # php v needs to run before domains 
+    fix_perms &                                                                 # fix permissions for all files
+    restore_php_version "$php_version" &                                        # php v needs to run before domains 
+	wait
     restore_domains                                                            # add domains
     #restore_dns_zones
     restore_mysql                                                              # mysql databases, users and grants
