@@ -429,7 +429,7 @@ restore_mysql() {
             sed -i 's/^MYSQL_VERSION=.*/MYSQL_VERSION="8.0"/' /home/"$cyberpanel_username"/.env
         fi
         log "Initializing $mysql_type service for user"
-        cd "/home/$cyberpanel_username/" && docker --context="$cyberpanel_username" compose up -d "$mysql_type" >/dev/null 2>&1
+        cd "/home/$cyberpanel_username/" && CONTAINER_HOST=unix:///hostfs/run/user/$(id -u $cyberpanel_username)/podman/podman.sock podman-compose up -d "$mysql_type" >/dev/null 2>&1
 
         # STEP 3: Wait for MySQL to be ready (max 300 seconds)
 		local max_wait=300
@@ -521,7 +521,7 @@ restore_ssl() {
             fi
         done
 
-        nohup docker --context=default exec caddy caddy reload --config /etc/caddy/Caddyfile > /dev/null 2>&1 &
+        nohup podman exec caddy caddy reload --config /etc/caddy/Caddyfile > /dev/null 2>&1 &
         disown
 
     else
